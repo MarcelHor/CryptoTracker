@@ -6,7 +6,7 @@ export default function App() {
     return (<NativeRouter>
             <Routes>
                 <Route exact path="/" element={<CryptoList/>}/>
-                <Route exact path="/crypto/:id" element={<CryptoDetail/>}/>
+                <Route exact path="/crypto/:name" element={<CryptoDetail/>}/>
             </Routes>
         </NativeRouter>);
 }
