@@ -1,20 +1,12 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import CryptoList from "./components/CryptoList";
+import {NativeRouter, Route, Routes} from "react-router-native";
+import CryptoDetail from "./components/CryptoDetail";
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    return (<NativeRouter>
+            <Routes>
+                <Route exact path="/" element={<CryptoList/>}/>
+                <Route exact path="/crypto/:id" element={<CryptoDetail/>}/>
+            </Routes>
+        </NativeRouter>);
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
