@@ -30,8 +30,8 @@ const CryptoList = () => {
 
     return (
         <View className={"bg-gray-50"}>
-            <Text className={"text-4xl font-bold mx-4 mt-12"}>Crypto</Text>
             <ScrollView>
+                <Text className={"text-4xl font-bold mx-4 mt-12"}>Crypto</Text>
                 {cryptos.map((crypto) => (<CryptoItem key={crypto.CoinInfo.Id} crypto={crypto}/>))}
             </ScrollView>
         </View>
