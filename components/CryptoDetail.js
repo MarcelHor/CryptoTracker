@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Image, View, Text, Dimensions, Button, TouchableOpacity} from 'react-native';
+import {Image, View, Text, Dimensions, Button, TouchableOpacity, TextInput, Modal} from 'react-native';
 import axios from 'axios';
 import {Link, useParams} from 'react-router-native';
 import {CRYPTO_API} from "@env";
@@ -7,12 +7,16 @@ import {LineChart} from 'react-native-wagmi-charts';
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import * as haptics from 'expo-haptics';
 import Icon from 'react-native-vector-icons/Ionicons';
+import AlertModal from "./AlertModal";
 
 const CryptoDetail = () => {
     const [crypto, setCrypto] = useState(null);
     const [history, setHistory] = useState([]);
+
     const {name} = useParams();
     const [interval, setInterval] = useState('day');
+
+    const [alertModalVisible, setAlertModalVisible] = useState(false);
 
     function invokeHaptic() {
         haptics.impactAsync(haptics.ImpactFeedbackStyle.Light);
@@ -28,7 +32,6 @@ const CryptoDetail = () => {
                     authorization: `Apikey ${CRYPTO_API}`,
                 },
             }).then((response) => {
-                console.log(response.data.RAW[name].USD);
                 setCrypto(response.data.RAW[name].USD);
             }).catch((err) => {
                 console.error(err);
@@ -111,24 +114,30 @@ const CryptoDetail = () => {
                     {crypto.CHANGEPCT24HOUR.toFixed(2)}%</Text>
             </View>
             <View className={"flex flex-row items-center mb-28"}>
-                {history ? (<GestureHandlerRootView style={{height: 300, width: Dimensions.get('window').width}}>
-                    <LineChart.Provider data={history}>
-                        <LineChart>
-                            <LineChart.Path/>
-                            <LineChart.CursorCrosshair onActivated={invokeHaptic} onEnded={invokeHaptic}>
-                                <LineChart.Tooltip/>
-                            </LineChart.CursorCrosshair>
-                        </LineChart>
-                    </LineChart.Provider>
-                </GestureHandlerRootView>) : (<Text>Loading history...</Text>)}
+                {history && history.length > 0 ? (
+                    <GestureHandlerRootView style={{height: 300, width: Dimensions.get('window').width}}>
+                        <LineChart.Provider data={history}>
+                            <LineChart>
+                                <LineChart.Path/>
+                                <LineChart.CursorCrosshair onActivated={invokeHaptic} onEnded={invokeHaptic}>
+                                    <LineChart.Tooltip/>
+                                </LineChart.CursorCrosshair>
+                            </LineChart>
+                        </LineChart.Provider>
+                    </GestureHandlerRootView>) : (<Text>Loading history...</Text>)}
             </View>
 
             <View className={"flex flex-row items-center justify-between mx-4 mb-8"}>
-                <TouchableOpacity onPress={() => setInterval('hour')} className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1h</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setInterval('day')} className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1d</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setInterval('week')} className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1w</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setInterval('month')} className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1m</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setInterval('year')} className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1y</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setInterval('hour')}
+                                  className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1h</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setInterval('day')}
+                                  className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1d</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setInterval('week')}
+                                  className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1w</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setInterval('month')}
+                                  className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1m</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setInterval('year')}
+                                  className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1y</Text></TouchableOpacity>
             </View>
         </View>
         <View className={"my-2 mx-4 p-3 bg-white rounded-lg shadow-sm shadow-black"}>
@@ -147,6 +156,13 @@ const CryptoDetail = () => {
                 </View>
             </View>
         </View>
+
+        <TouchableOpacity onPress={() => setAlertModalVisible(true)}
+                          className={"bg-sky-400 flex items-center justify-center absolute bottom-0 w-full py-3"}>
+            <Text className={"text-xl text-white"}>Add Alert</Text>
+        </TouchableOpacity>
+
+        <AlertModal visible={alertModalVisible} setVisible={setAlertModalVisible} crypto={crypto}/>
     </View>);
 }
 
