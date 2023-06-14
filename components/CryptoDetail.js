@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import {Image, View, Text, Dimensions, Button, TouchableOpacity, TextInput, Modal} from 'react-native';
+import {
+    Image, View, Text, Dimensions, Button, TouchableOpacity, TextInput, Modal, ActivityIndicator
+} from 'react-native';
 import axios from 'axios';
 import {Link, useParams} from 'react-router-native';
 import {CRYPTO_API} from "@env";
@@ -90,7 +92,7 @@ const CryptoDetail = () => {
 
 
     if (!crypto) {
-        return <View><Text>Loading...</Text></View>;
+        return <ActivityIndicator size="large" color="#0000ff"/>;
     }
 
 
@@ -129,18 +131,18 @@ const CryptoDetail = () => {
 
             <View className={"flex flex-row items-center justify-between mx-4 mb-8"}>
                 <TouchableOpacity onPress={() => setInterval('hour')}
-                                  className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1h</Text></TouchableOpacity>
+                                  className={"bg-sky-400  rounded-lg py-3 px-5"}><Text className={"font-bold text-white"}>1h</Text></TouchableOpacity>
                 <TouchableOpacity onPress={() => setInterval('day')}
-                                  className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1d</Text></TouchableOpacity>
+                                  className={"bg-sky-400  rounded-lg py-3 px-5"}><Text className={"font-bold text-white"}>1d</Text></TouchableOpacity>
                 <TouchableOpacity onPress={() => setInterval('week')}
-                                  className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1w</Text></TouchableOpacity>
+                                  className={"bg-sky-400  rounded-lg py-3 px-5"}><Text className={"font-bold text-white"}>1w</Text></TouchableOpacity>
                 <TouchableOpacity onPress={() => setInterval('month')}
-                                  className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1m</Text></TouchableOpacity>
+                                  className={"bg-sky-400  rounded-lg py-3 px-5"}><Text className={"font-bold text-white"}>1m</Text></TouchableOpacity>
                 <TouchableOpacity onPress={() => setInterval('year')}
-                                  className={"bg-gray-200 rounded-lg py-3 px-5"}><Text className={"font-bold"}>1y</Text></TouchableOpacity>
+                                  className={"bg-sky-400  rounded-lg py-3 px-5"}><Text className={"font-bold text-white"}>1y</Text></TouchableOpacity>
             </View>
         </View>
-        <View className={"my-2 mx-4 p-3 bg-white rounded-lg shadow-sm shadow-black"}>
+        <View className={"mb-4 mx-4 p-3 bg-white rounded-lg shadow-sm shadow-black"}>
             <View className={"flex flex-row items-center justify-between"}>
                 <View className={"flex flex-col"}>
                     <Text className={"text-xl font-bold"}>Market Cap</Text>
@@ -158,8 +160,8 @@ const CryptoDetail = () => {
         </View>
 
         <TouchableOpacity onPress={() => setAlertModalVisible(true)}
-                          className={"bg-sky-400 flex items-center justify-center absolute bottom-0 w-full py-3"}>
-            <Text className={"text-xl text-white"}>Add Alert</Text>
+                          className={" bg-sky-400 flex items-center justify-center absolute bottom-0 w-full py-3"}>
+            <Text className={"text-xl font-semibold text-white"}>Add Alert</Text>
         </TouchableOpacity>
 
         <AlertModal visible={alertModalVisible} setVisible={setAlertModalVisible} crypto={crypto}/>
