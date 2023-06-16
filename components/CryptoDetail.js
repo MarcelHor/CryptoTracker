@@ -12,9 +12,9 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import AlertModal from "./AlertModal";
 
 const CryptoDetail = () => {
-    const [crypto, setCrypto] = useState(null);
+    const [Info, setInfo] = useState(null);
     const [history, setHistory] = useState([]);
-
+    const [price, setPrice] = useState(0);
     const {name} = useParams();
     const [interval, setInterval] = useState('day');
 
@@ -25,7 +25,6 @@ const CryptoDetail = () => {
     }
 
     useEffect(() => {
-
         const fetchCryptoInfo = async () => {
             await axios.get(`https://min-api.cryptocompare.com/data/pricemultifull`, {
                 params: {
@@ -34,7 +33,7 @@ const CryptoDetail = () => {
                     authorization: `Apikey ${CRYPTO_API}`,
                 },
             }).then((response) => {
-                setCrypto(response.data.RAW[name].USD);
+                setInfo(response.data.RAW[name].USD);
             }).catch((err) => {
                 console.error(err);
             });
@@ -86,12 +85,42 @@ const CryptoDetail = () => {
             });
         }
 
+
         fetchCryptoHistory(interval);
         fetchCryptoInfo();
     }, [name, interval]);
 
+    useEffect(() => {
+        const ws = new WebSocket('wss://streamer.cryptocompare.com/v2?api_key=' + CRYPTO_API);
 
-    if (!crypto) {
+        ws.onopen = () => {
+            const subRequest = {
+                "action": "SubAdd", "subs": ["5~CCCAGG~" + name + "~USD"]
+            };
+            ws.send(JSON.stringify(subRequest));
+        };
+
+        ws.onmessage = (e) => {
+            const response = JSON.parse(e.data);
+
+            if (response.TYPE === "5" && response.PRICE) {
+                setPrice(response.PRICE)
+            }
+        };
+
+        ws.onerror = (e) => {
+            console.error(e);
+        };
+
+        ws.onclose = (e) => {
+            console.log(e.code, e.reason);
+        };
+
+        return () => ws.close();
+    }, [name]);
+
+
+    if (!Info) {
         return <ActivityIndicator size="large" color="#0000ff"/>;
     }
 
@@ -107,20 +136,20 @@ const CryptoDetail = () => {
                 </Link>
             </View>
             <View className={"flex flex-col items-center"}>
-                <Image source={{uri: `https://cryptocompare.com/${crypto.IMAGEURL}`}}
+                <Image source={{uri: `https://cryptocompare.com/${Info.IMAGEURL}`}}
                        style={{width: 64, height: 64}}/>
-                <Text className={"text-lg"}>{crypto.FROMSYMBOL}</Text>
-                <Text className={"text-3xl font-bold"}>${crypto.PRICE.toFixed(2)}</Text>
+                <Text className={"text-lg"}>{Info.FROMSYMBOL}</Text>
+                <Text className={"text-3xl font-bold"}>{price.toFixed(2)}</Text>
                 <Text
-                    className={`${crypto.CHANGEPCT24HOUR < 0 ? "text-red-500 bg-red-200 font-semibold p-1.5" : "text-green-500 bg-green-200 font-semibold p-1.5"}`}>
-                    {crypto.CHANGEPCT24HOUR.toFixed(2)}%</Text>
+                    className={`${Info.CHANGEPCT24HOUR < 0 ? "text-red-500 font-semibold p-1.5" : "text-lime-500 font-semibold p-1.5"}`}>
+                    {Info.CHANGEPCT24HOUR.toFixed(2)}%</Text>
             </View>
-            <View className={"flex flex-row items-center mb-28"}>
+            <View className={"flex flex-row items-center mb-8"}>
                 {history && history.length > 0 ? (
                     <GestureHandlerRootView style={{height: 300, width: Dimensions.get('window').width}}>
                         <LineChart.Provider data={history}>
-                            <LineChart>
-                                <LineChart.Path/>
+                            <LineChart width={Dimensions.get('window').width} height={300}>
+                                <LineChart.Path width={4}/>
                                 <LineChart.CursorCrosshair onActivated={invokeHaptic} onEnded={invokeHaptic}>
                                     <LineChart.Tooltip/>
                                 </LineChart.CursorCrosshair>
@@ -129,42 +158,51 @@ const CryptoDetail = () => {
                     </GestureHandlerRootView>) : (<Text>Loading history...</Text>)}
             </View>
 
-            <View className={"flex flex-row items-center justify-between mx-4 mb-8"}>
-                <TouchableOpacity onPress={() => setInterval('hour')}
-                                  className={"bg-sky-400  rounded-lg py-3 px-5"}><Text className={"font-bold text-white"}>1h</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setInterval('day')}
-                                  className={"bg-sky-400  rounded-lg py-3 px-5"}><Text className={"font-bold text-white"}>1d</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setInterval('week')}
-                                  className={"bg-sky-400  rounded-lg py-3 px-5"}><Text className={"font-bold text-white"}>1w</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setInterval('month')}
-                                  className={"bg-sky-400  rounded-lg py-3 px-5"}><Text className={"font-bold text-white"}>1m</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setInterval('year')}
-                                  className={"bg-sky-400  rounded-lg py-3 px-5"}><Text className={"font-bold text-white"}>1y</Text></TouchableOpacity>
-            </View>
-        </View>
-        <View className={"mb-4 mx-4 p-3 bg-white rounded-lg shadow-sm shadow-black"}>
-            <View className={"flex flex-row items-center justify-between"}>
-                <View className={"flex flex-col"}>
-                    <Text className={"text-xl font-bold"}>Market Cap</Text>
-                    <Text className={"text-gray-500"}>${crypto.MKTCAP.toFixed(2)}</Text>
+            <View className={"flex flex-col items-center justify-between h-64 w-full"}>
+                <View className={"flex flex-row items-center justify-between w-full px-4"}>
+                    <TouchableOpacity onPress={() => setInterval('hour')}
+                                      className={"bg-lime-400 rounded-lg py-3 px-5"}><Text
+                        className={"font-bold text-white"}>1h</Text></TouchableOpacity>
+                    <TouchableOpacity onPress={() => setInterval('day')}
+                                      className={"bg-lime-400  rounded-lg py-3 px-5"}><Text
+                        className={"font-bold text-white"}>1d</Text></TouchableOpacity>
+                    <TouchableOpacity onPress={() => setInterval('week')}
+                                      className={"bg-lime-400  rounded-lg py-3 px-5"}><Text
+                        className={"font-bold text-white"}>1w</Text></TouchableOpacity>
+                    <TouchableOpacity onPress={() => setInterval('month')}
+                                      className={"bg-lime-400  rounded-lg py-3 px-5"}><Text
+                        className={"font-bold text-white"}>1m</Text></TouchableOpacity>
+                    <TouchableOpacity onPress={() => setInterval('year')}
+                                      className={"bg-lime-400  rounded-lg py-3 px-5"}><Text
+                        className={"font-bold text-white"}>1y</Text></TouchableOpacity>
                 </View>
-                <View className={"flex flex-col"}>
-                    <Text className={"text-xl font-bold"}>Volume (24h)</Text>
-                    <Text className={"text-gray-500"}>${crypto.TOTALVOLUME24HTO.toFixed(2)}</Text>
+                <View className={"w-full px-4"}>
+                    <View className={"flex flex-row items-center justify-between bg-white rounded-lg shadow-sm shadow-black h-16 p-4"}>
+                        <View className={"flex flex-col"}>
+                            <Text className={"text-xl font-bold"}>Market Cap</Text>
+                            <Text className={"text-gray-500"}>${Info.MKTCAP.toFixed(2)}</Text>
+                        </View>
+                        <View className={"flex flex-col"}>
+                            <Text className={"text-xl font-bold"}>Volume (24h)</Text>
+                            <Text className={"text-gray-500"}>${Info.TOTALVOLUME24HTO.toFixed(2)}</Text>
+                        </View>
+                        <View className={"flex flex-col"}>
+                            <Text className={"text-xl font-bold"}>Supply</Text>
+                            <Text className={"text-gray-500"}>{Info.SUPPLY.toFixed(2)}</Text>
+                        </View>
+                    </View>
                 </View>
-                <View className={"flex flex-col"}>
-                    <Text className={"text-xl font-bold"}>Supply</Text>
-                    <Text className={"text-gray-500"}>{crypto.SUPPLY.toFixed(2)}</Text>
+
+                <View className={"w-full px-4"}>
+                    <TouchableOpacity onPress={() => setAlertModalVisible(true)}
+                                      className={"bg-lime-400 flex items-center justify-center w-full py-3 rounded-lg"}>
+                        <Text className={"text-xl font-semibold text-white"}>Add Alert</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </View>
 
-        <TouchableOpacity onPress={() => setAlertModalVisible(true)}
-                          className={" bg-sky-400 flex items-center justify-center absolute bottom-0 w-full py-3"}>
-            <Text className={"text-xl font-semibold text-white"}>Add Alert</Text>
-        </TouchableOpacity>
-
-        <AlertModal visible={alertModalVisible} setVisible={setAlertModalVisible} crypto={crypto}/>
+        <AlertModal visible={alertModalVisible} setVisible={setAlertModalVisible} name={name} price={price}/>
     </View>);
 }
 
