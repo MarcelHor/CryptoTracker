@@ -102,18 +102,9 @@ const CryptoDetail = () => {
 
         ws.onmessage = (e) => {
             const response = JSON.parse(e.data);
-
             if (response.TYPE === "5" && response.PRICE) {
                 setPrice(response.PRICE)
             }
-        };
-
-        ws.onerror = (e) => {
-            console.error(e);
-        };
-
-        ws.onclose = (e) => {
-            console.log(e.code, e.reason);
         };
 
         return () => ws.close();
