@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {
-    Image, View, Text, Dimensions, Button, TouchableOpacity, TextInput, Modal, ActivityIndicator
+    Image, View, Text, Dimensions, TouchableOpacity, ActivityIndicator
 } from 'react-native';
 import axios from 'axios';
 import {Link, useParams} from 'react-router-native';
@@ -26,17 +26,19 @@ const CryptoDetail = () => {
 
     useEffect(() => {
         const fetchCryptoInfo = async () => {
-            await axios.get(`https://min-api.cryptocompare.com/data/pricemultifull`, {
-                params: {
-                    fsyms: name, tsyms: 'USD',
-                }, headers: {
-                    authorization: `Apikey ${CRYPTO_API}`,
-                },
-            }).then((response) => {
+            try {
+                const response = await axios.get(`https://min-api.cryptocompare.com/data/pricemultifull`, {
+                    params: {
+                        fsyms: name, tsyms: 'USD',
+                    },
+                    headers: {
+                        authorization: `Apikey ${CRYPTO_API}`,
+                    },
+                });
                 setInfo(response.data.RAW[name].USD);
-            }).catch((err) => {
+            } catch (err) {
                 console.error(err);
-            });
+            }
         }
 
         const fetchCryptoHistory = async (interval) => {
@@ -68,23 +70,23 @@ const CryptoDetail = () => {
                     limit = 24;
             }
 
-
-            await axios.get(`https://min-api.cryptocompare.com/data/v2/${endpoint}`, {
-                params: {
-                    fsym: name, tsym: 'USD', limit: limit,
-                }, headers: {
-                    authorization: `Apikey ${CRYPTO_API}`,
-                }
-            }).then((response) => {
+            try {
+                const response = await axios.get(`https://min-api.cryptocompare.com/data/v2/${endpoint}`, {
+                    params: {
+                        fsym: name, tsym: 'USD', limit: limit,
+                    },
+                    headers: {
+                        authorization: `Apikey ${CRYPTO_API}`,
+                    },
+                });
                 const prices = response.data.Data.Data.map(item => ({
                     value: item.close, date: new Date(item.time * 1000)
                 }));
                 setHistory(prices);
-            }).catch((err) => {
+            } catch (err) {
                 console.error(err);
-            });
+            }
         }
-
 
         fetchCryptoHistory(interval);
         fetchCryptoInfo();

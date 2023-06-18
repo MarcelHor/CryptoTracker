@@ -22,3 +22,5 @@ web-build/
 
 .idea
 .idea/
+
+eas.json

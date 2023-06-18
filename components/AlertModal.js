@@ -1,4 +1,4 @@
-import {Modal, View, Text, TextInput, TouchableOpacity, ScrollView} from "react-native";
+import {Modal, View, Text, TextInput, TouchableOpacity, ScrollView, Platform} from "react-native";
 import {useEffect, useRef, useState} from "react";
 import Icon from "react-native-vector-icons/Ionicons";
 import * as Notifications from 'expo-notifications';
@@ -12,6 +12,7 @@ Notifications.setNotificationHandler({
         shouldSetBadge: true
     })
 });
+
 export default function AlertModal(props) {
     const [alerts, setAlerts] = useState([]);
     const alertName = props.name;
@@ -63,7 +64,7 @@ export default function AlertModal(props) {
             }
 
             if (Platform.OS === 'android') {
-                Notifications.setNotificationChannelAsync('default', {
+                await Notifications.setNotificationChannelAsync('default', {
                     name: 'default',
                     importance: Notifications.AndroidImportance.MAX,
                     vibrationPattern: [0, 250, 250, 250],
