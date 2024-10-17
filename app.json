@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "react_native",
-    "slug": "react_native",
+    "name": "my-app",
+    "slug": "crypto",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,9 +11,6 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "ios": {
       "supportsTablet": true
     },
@@ -21,15 +18,14 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.marcelus1231.react_native"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "6060d0bf-33a5-485e-8a2b-96ef27ae6db2"
+        "projectId": "68d3e02c-97ff-4b5c-98a4-bac1764a9755"
       }
     },
     "owner": "marcelus1231"

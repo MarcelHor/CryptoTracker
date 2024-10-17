@@ -1,5 +1,5 @@
-import CryptoList from "./components/CryptoList";
 import {NativeRouter, Route, Routes} from "react-router-native";
+import CryptoList from "./components/CryptoList";
 import CryptoDetail from "./components/CryptoDetail";
 
 export default function App() {
